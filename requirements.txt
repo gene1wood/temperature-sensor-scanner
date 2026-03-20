@@ -1,0 +1,5 @@
+bleak
+atc-mi-interface
+influxdb-client
+platformdirs
+PyYAML

@@ -1,0 +1,20 @@
+sensors:
+  ABCDEF123456:
+    bindkey: 0123456789abcdef0123456789abcdef
+    domain: outdoors
+    location: John's room, window next to closet
+    name: ATC_123456
+    mac: ABCDEF1234567890
+
+  BCDEF1234567:
+    bindkey: 123456789abcdef0123456789abcdef0
+    domain: indoors
+    location: Alice's room, on bookshelf
+    name: ATC_234567
+    mac: BCDEF12345678901
+
+influxdb:
+  bucket: home
+  org: my-org
+  token: abcdefghijklmnopqrstuvwxyz-0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789-abcdefghij==
+  url: https://influxdb.example.com

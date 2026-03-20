@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "temperature-sensor-scanner"
+version = "1.0.0"
+description = "Collect data from temperature sensors and emit it into influxdb"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+authors = [
+    { name = "Gene Wood", email = "gene_wood@cementhorizon.com" }
+]
+dependencies = [
+    "bleak",
+    "atc-mi-interface",
+    "influxdb-client",
+    "platformdirs",
+    "PyYAML"
+]
+
+[project.urls]
+Homepage = "https://github.com/gene1wood/temperature-sensor-scanner"
+Repository = "https://github.com/gene1wood/temperature-sensor-scanner"
+
+# CLI entry point
+[project.scripts]
+temperature-sensor-scanner = "temperature_sensor_scanner:main"
+
+# Tell hatchling where your package lives
+[tool.hatch.build.targets.wheel]
+packages = ["temperature_sensor_scanner"]
+
+[tool.black]
+preview = true
+unstable = true
