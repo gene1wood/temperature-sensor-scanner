@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "temperature-sensor-scanner"
 version = "1.0.0"
-description = "Collect data from temperature sensors and emit it into influxdb"
+description = "A tool to collect data from temperature sensors and emit it into InfluxDB"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "GPL-3.0-or-later" }
