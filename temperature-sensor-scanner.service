@@ -1,0 +1,10 @@
+[Unit]
+Description=Scan nearby Bluetooth Low Energy thermometers on the Telink chipset, collect the data ane emit it into InfluxDB.
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/temperature-sensor-scanner
+
+# Prevent syslog spam
+StandardOutput=null
+StandardError=journal

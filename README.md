@@ -7,6 +7,9 @@ InfluxDB.
 
 * Create an influxdb user with a command like `influx user create --org [my-org] --name [my-username] --password [my-password]`
 * Create an influxdb token with a command like `influx auth create --org [my-org] --user [my-username] --write-bucket [my-bucket-id]`
+* Ensure the host supports at least Bluetooth 4.0 which is when BLE was first introduced
+* Ensure bluetooth is working
+  * `rfkill list` should show that `Soft blocked` and `Hard blocked` are both `no`, if not `rfkill unblock bluetooth && rfkill list && systemctl restart bluetooth`
 * Create a `config.yaml` in `~/.config/temperature-sensor-scanner/` based on the `config.example.yaml` file
 * Install this tool with a command like `pip install temperature-sensor-scanner`
 
@@ -14,6 +17,25 @@ InfluxDB.
 
 Run `temperature-sensor-scanner` which will scan for nearby sensors which are emitting temperature data in their Bluetooth
 advertising string, collect that data, and emit it into InfluxDB.
+
+## Setting up a service
+
+Run this as the user you want to run the service
+
+```shell
+mkdir -p ~/.config/systemd/user/
+cp temperature-sensor-scanner.service ~/.config/systemd/user/
+cp temperature-sensor-scanner.timer ~/.config/systemd/user/
+
+systemctl --user daemon-reload
+systemctl --user enable --now temperature-sensor-scanner.timer
+
+sudo loginctl enable-linger $USER
+
+systemctl --user list-timers
+systemctl --user status temperature-sensor-scanner.service
+journalctl --user -u temperature-sensor-scanner.service
+```
 
 # Notes
 
