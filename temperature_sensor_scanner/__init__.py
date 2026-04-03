@@ -2,6 +2,7 @@
 
 import asyncio
 from bleak import BleakScanner  # pip install bleak
+from bleak.exc import BleakDBusError
 from functools import partial
 from atc_mi_interface import (
     general_format,
@@ -126,11 +127,24 @@ async def ble_coro(config):
         if seen_macs >= set(config["sensors"].keys()):
             stop_event.set()
 
-    async with BleakScanner(detection_callback=detection_callback) as scanner:
-        try:
-            await asyncio.wait_for(stop_event.wait(), timeout=timeout)
-        except asyncio.TimeoutError:
-            print(f"Scan timed out after {timeout}s — returning {len(results)} result(s)")
+    try:
+        async with BleakScanner(detection_callback=detection_callback) as scanner:
+            # Use shield + wait instead of wait_for, so the timeout does NOT
+            # cancel the task — we just stop waiting and let the context manager
+            # exit cleanly on its own.
+            done, pending = await asyncio.wait(
+                [asyncio.get_event_loop().create_task(stop_event.wait())],
+                timeout=timeout,
+            )
+            if not done:
+                print(f"Scan timed out after {timeout}s — returning {len(results)} result(s)")
+            # Exiting the `async with` block here always runs scanner cleanup
+            # synchronously and correctly, regardless of whether we timed out.
+    except BleakDBusError as e:
+        # On Linux/BlueZ, stopping a scan that found no devices can raise
+        # "Operation already in progress" due to a race condition in BlueZ
+        if "InProgress" not in str(e):
+            raise
 
     return results
 
