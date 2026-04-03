@@ -96,25 +96,29 @@ async def ble_coro(config):
         format_label, adv_data = atc_mi_advertising_format(advertisement_data)
         if not adv_data:
             return
-        mac_address = bytes.fromhex(device.address.replace(":", ""))
-        bindkey = config["sensors"][device.address.replace(":", "")]["bindkey"]
-
-        atc_mi_data = general_format.parse(
-            adv_data,
-            mac_address=mac_address,
-            bindkey=None if bindkey is None else bytes.fromhex(bindkey),
-        )
-        name = atc_mi_data.atc1441_format[0].MAC.replace(":", "")[-6:]
-        if atc_mi_data.atc1441_format[0].temperature_unit == "°C":
-            temperature = (atc_mi_data.atc1441_format[0].temperature * 1.8) + 32
+        device_address = device.address.replace(":", "")
+        if device_address not in config["sensors"]:
+            print(f"Detected unknown device: {device_address}")
         else:
-            temperature = atc_mi_data.atc1441_format[0].temperature
-        print(f"ATC_{name} : {temperature:.1f}")
+            mac_address = bytes.fromhex(device_address)
+            bindkey = config["sensors"][device.address.replace(":", "")]["bindkey"]
 
-        results.append({
-            "mac": atc_mi_data.atc1441_format[0].MAC.replace(":", ""),
-            "temperature": temperature,
-        })
+            atc_mi_data = general_format.parse(
+                adv_data,
+                mac_address=mac_address,
+                bindkey=None if bindkey is None else bytes.fromhex(bindkey),
+            )
+            name = atc_mi_data.atc1441_format[0].MAC.replace(":", "")[-6:]
+            if atc_mi_data.atc1441_format[0].temperature_unit == "°C":
+                temperature = (atc_mi_data.atc1441_format[0].temperature * 1.8) + 32
+            else:
+                temperature = atc_mi_data.atc1441_format[0].temperature
+            print(f"ATC_{name} : {temperature:.1f}")
+
+            results.append({
+                "mac": atc_mi_data.atc1441_format[0].MAC.replace(":", ""),
+                "temperature": temperature,
+            })
 
         count[0] += 1
         if count[0] == 8:
