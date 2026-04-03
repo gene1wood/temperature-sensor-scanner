@@ -88,46 +88,50 @@ def emit_data(config: dict, points: list) -> None:
 
 
 async def ble_coro(config):
-    count = [0]
+    timeout = config.get("scan_timeout_seconds", 30)  # default 30s
     stop_event = asyncio.Event()
     results = []
+    seen_macs = set()
 
-    def detection_callback(count, results, device, advertisement_data):
+    def detection_callback(device, advertisement_data):
         format_label, adv_data = atc_mi_advertising_format(advertisement_data)
         if not adv_data:
             return
         device_address = device.address.replace(":", "")
         if device_address not in config["sensors"]:
             print(f"Detected unknown device: {device_address}")
+            return
+
+        mac_address = bytes.fromhex(device_address)
+        bindkey = config["sensors"][device_address.replace(":", "")]["bindkey"]
+
+        atc_mi_data = general_format.parse(
+            adv_data,
+            mac_address=mac_address,
+            bindkey=None if bindkey is None else bytes.fromhex(bindkey),
+        )
+        mac = atc_mi_data.atc1441_format[0].MAC.replace(":", "")
+        name = mac[-6:]
+
+        if atc_mi_data.atc1441_format[0].temperature_unit == "°C":
+            temperature = (atc_mi_data.atc1441_format[0].temperature * 1.8) + 32
         else:
-            mac_address = bytes.fromhex(device_address)
-            bindkey = config["sensors"][device.address.replace(":", "")]["bindkey"]
+            temperature = atc_mi_data.atc1441_format[0].temperature
 
-            atc_mi_data = general_format.parse(
-                adv_data,
-                mac_address=mac_address,
-                bindkey=None if bindkey is None else bytes.fromhex(bindkey),
-            )
-            name = atc_mi_data.atc1441_format[0].MAC.replace(":", "")[-6:]
-            if atc_mi_data.atc1441_format[0].temperature_unit == "°C":
-                temperature = (atc_mi_data.atc1441_format[0].temperature * 1.8) + 32
-            else:
-                temperature = atc_mi_data.atc1441_format[0].temperature
-            print(f"ATC_{name} : {temperature:.1f}")
+        print(f"ATC_{name} : {temperature:.1f}")
+        results.append({"mac": mac, "temperature": temperature})
 
-            results.append({
-                "mac": atc_mi_data.atc1441_format[0].MAC.replace(":", ""),
-                "temperature": temperature,
-            })
-
-        count[0] += 1
-        if count[0] == 8:
+        # Stop early once we've heard from every configured sensor
+        seen_macs.add(mac)
+        if seen_macs >= set(config["sensors"].keys()):
             stop_event.set()
 
-    async with BleakScanner(
-        detection_callback=partial(detection_callback, count, results)
-    ) as scanner:
-        await stop_event.wait()
+    async with BleakScanner(detection_callback=detection_callback) as scanner:
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=timeout)
+        except asyncio.TimeoutError:
+            print(f"Scan timed out after {timeout}s — returning {len(results)} result(s)")
+
     return results
 
 

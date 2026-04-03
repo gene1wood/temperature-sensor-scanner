@@ -18,3 +18,5 @@ influxdb:
   org: my-org
   token: abcdefghijklmnopqrstuvwxyz-0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789-abcdefghij==
   url: https://influxdb.example.com
+
+scan_timeout_seconds: 30
