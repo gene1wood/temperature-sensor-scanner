@@ -1,5 +1,4 @@
 bleak
 atc-mi-interface
-influxdb3-python
 platformdirs
 PyYAML
