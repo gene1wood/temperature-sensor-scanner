@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "temperature-sensor-scanner"
-version = "2.0.0"
+version = "2.0.1"
 description = "A tool to collect data from temperature sensors and emit it into InfluxDB 3"
 readme = "README.md"
 requires-python = ">=3.10"
