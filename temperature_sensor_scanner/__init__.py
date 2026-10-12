@@ -11,8 +11,7 @@ from atc_mi_interface import (
 
 # atc-mi-interface
 # https://github.com/pvvx/ATC_MiThermometer/tree/master/python-interface#decoding-and-encoding
-import influxdb_client  # pip install influxdb-client
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client_3 import InfluxDBClient3, Point  # pip install influxdb3-python
 
 import sys
 from pathlib import Path
@@ -67,7 +66,7 @@ def gather_data(config: dict) -> list:
             macs_seen.add(scan_result["mac"])
         sensor = config["sensors"][scan_result["mac"]]
         points.append(
-            influxdb_client.Point("environment")
+            Point("environment")
             .tag("location", sensor["location"])
             .tag("domain", sensor["domain"])
             .tag("mac", scan_result["mac"])
@@ -77,15 +76,15 @@ def gather_data(config: dict) -> list:
 
 
 def emit_data(config: dict, points: list) -> None:
-    bucket = config["influxdb"]["bucket"]
-    org = config["influxdb"]["org"]
-    token = config["influxdb"]["token"]
-    url = config["influxdb"]["url"]
-
-    client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
-
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-    write_api.write(bucket=bucket, org=org, record=points)
+    client = InfluxDBClient3(
+        host=config["influxdb"]["url"],
+        token=config["influxdb"]["token"],
+        database=config["influxdb"]["database"],
+    )
+    try:
+        client.write(record=points)
+    finally:
+        client.close()
 
 
 async def ble_coro(config):

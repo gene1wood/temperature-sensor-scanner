@@ -1,5 +1,5 @@
 [Unit]
-Description=Scan nearby Bluetooth Low Energy thermometers on the Telink chipset, collect the data ane emit it into InfluxDB.
+Description=Scan nearby Bluetooth Low Energy thermometers on the Telink chipset, collect the data ane emit it into InfluxDB 3.
 
 [Service]
 Type=oneshot

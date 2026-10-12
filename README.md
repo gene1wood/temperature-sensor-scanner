@@ -1,12 +1,12 @@
 # temperature-sensor-scanner
 
 A tool to scan nearby Bluetooth Low Energy thermometers on the Telink chipset, collect the data ane emit it into
-InfluxDB.
+InfluxDB 3.
 
 ## Setup
 
-* Create an influxdb user with a command like `influx user create --org [my-org] --name [my-username] --password [my-password]`
-* Create an influxdb token with a command like `influx auth create --org [my-org] --user [my-username] --write-bucket [my-bucket-id]`
+* Create an InfluxDB 3 token with a command like `influxdb3 create token --admin`
+* Create a database with a command like `influxdb3 create database [my-database] --token [my-token]`
 * Ensure the host supports at least Bluetooth 4.0 which is when BLE was first introduced
 * Ensure bluetooth is working
   * `rfkill list` should show that `Soft blocked` and `Hard blocked` are both `no`, if not `rfkill unblock bluetooth && rfkill list && systemctl restart bluetooth`
@@ -16,7 +16,7 @@ InfluxDB.
 ## Usage
 
 Run `temperature-sensor-scanner` which will scan for nearby sensors which are emitting temperature data in their Bluetooth
-advertising string, collect that data, and emit it into InfluxDB.
+advertising string, collect that data, and emit it into InfluxDB 3.
 
 ## Setting up a service
 

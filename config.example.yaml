@@ -14,9 +14,8 @@ sensors:
     mac: BCDEF12345678901
 
 influxdb:
-  bucket: home
-  org: my-org
+  database: home
   token: abcdefghijklmnopqrstuvwxyz-0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789-abcdefghij==
-  url: https://influxdb.example.com
+  url: https://influxdb.example.com:8181
 
 scan_timeout_seconds: 30

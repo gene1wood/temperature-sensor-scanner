@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "temperature-sensor-scanner"
-version = "1.1.1"
-description = "A tool to collect data from temperature sensors and emit it into InfluxDB"
+version = "2.0.0"
+description = "A tool to collect data from temperature sensors and emit it into InfluxDB 3"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "GPL-3.0-or-later" }
@@ -15,7 +15,7 @@ authors = [
 dependencies = [
     "bleak",
     "atc-mi-interface",
-    "influxdb-client",
+    "influxdb3-python",
     "platformdirs",
     "PyYAML"
 ]
